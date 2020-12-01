@@ -5,6 +5,7 @@ Using Blackice II FPGA board (Lattice Ice40 HX4K)
 * Control through SPI from STM32 and serial interface from the outside world
 
 * Arduino sketch accepts serial port commands such as
+
   ```set width <WIDTH> <PULSER NUMBER>```
   
   ```set delay <DELAY> <PULSER NUMBER>```
