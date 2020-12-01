@@ -1,0 +1,36 @@
+set_io leds[0] 71
+set_io leds[1] 67 
+set_io leds[2] 68
+set_io leds[3] 70 
+
+set_io ppo[0] 34   #PMOD11
+set_io ppo[1] 33
+set_io ppo[2] 22
+set_io ppo[3] 21
+
+set_io ppo[4] 20   #PMOD9
+set_io ppo[5] 19
+set_io ppo[6] 16
+set_io ppo[7] 15
+
+
+# SPI2 (shared with switches S1-S2: must be in OFF position)
+set_io SPI_SCK  39
+set_io SPI_MISO 38
+set_io SPI_MOSI 37
+set_io SPI_SS   41
+
+
+#set_io dips[0] 41 
+#set_io dips[1] 39 
+#set_io dips[2] 38
+#set_io dips[3] 37
+
+# Onboard 100Mhz oscillator
+set_io clk 129
+
+# Internal global reset
+set_io rst 128 # Connected to CH340 RTS and also P1 (uart Pmod above)
+
+set_io B1 63 # Push Button 1
+set_io B2 64 # Push Button 2

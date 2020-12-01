@@ -1,0 +1,21 @@
+C C C C N N N N   |   Pulser #          |   Values
+C C C C  X X X X      P P P P P P P P       4 Bytes = 32 bit 
+
+0 0 0 1   Width of Pulse in CLK cycles         16
+0 0 1 0   Delay of the pulse in CLK cycles     32
+0 1 0 0   on-off Channel                       64
+0 1 0 1   set MUX                              80
+1 0 0 1   Request Pulse Width                  148
+1 0 1 0   Request pulse Delay                  160
+1 1 0 0   Request on-off Channel	       192
+1 1 0 1   request MUX			       208
+1 1 1 1   trigger			       240
+
+
+  76543210 76543210 76543210 76543210
+  00000100 00101100 00011101 10000000
+  
+  4    44       29       128
+
+0100 
+
