@@ -16,8 +16,10 @@ Using Blackice II FPGA board (Lattice Ice40 HX4K)
   
   ```trig```
 
-* Currently 8 output channels and 8 pulsers, pulsers can be multiplexed with on any output channel
+* Currently 8 output channels and 8 pulsers, pulsers can be multiplexed on any of the output channels, thus to generate double pulses of pulse trains.
 
 * The pulsers are generated (```N``` in the ```pulser.v```) their number is only limited by chip size) 
 
 * Number of outputs ```N_out``` can be adjusted, only limited by number of FPGA pins 
+
+* Resolution 10ns for delay and pulse width, 32 bit wide counters
