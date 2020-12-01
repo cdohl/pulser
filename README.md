@@ -6,9 +6,13 @@ Using Blackice II FPGA board (Lattice Ice40 HX4K)
 
 * Arduino sketch accepts serial port commands such as
   ```set width <WIDTH> <PULSER NUMBER>```
+  
   ```set delay <DELAY> <PULSER NUMBER>```
+  
   ```set enable <PULSER BITS>```
+  
   ```req enable```
+  
   ```trig```
 
 * Currently 8 output channels and 8 pulsers, pulsers can be multiplexed with on any output channel
