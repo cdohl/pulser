@@ -23,3 +23,5 @@ Using Blackice II FPGA board (Lattice Ice40 HX4K)
 * Number of outputs ```N_out``` can be adjusted, only limited by number of FPGA pins 
 
 * Resolution 10ns for delay and pulse width, 32 bit wide counters
+
+* Jupyter Notebook and GUI to control the timing through serial port
