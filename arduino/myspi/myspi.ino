@@ -22,14 +22,16 @@ char strSet[] = "SET";
 char strReq[] = "REQ";
 char strTrig[] = "TRIG";
 
-
 #define CMD_SET_WIDTH  16
 #define CMD_SET_DELAY  32
 #define CMD_SET_ENABLE 64
 #define CMD_SET_MUX    80
+#define CMD_REQ_WIDTH  148
+#define CMD_REQ_DELAY  160
 #define CMD_REQ_ENABLE 192
+#define CMD_REQ_MUX    208
 #define CMD_TRIGGER    240
-#define DEBUG
+//#define DEBUG
 
 /*
  * FPGA configuration bitstream built from fpga/readswitches.v
@@ -113,6 +115,21 @@ void req_enable(){
   Serial.print(pbuffer[0]);Serial.print(":");  Serial.print(pbuffer[1]);Serial.print(":");
   Serial.print(pbuffer[2]);Serial.print(":");  Serial.print(pbuffer[3]);Serial.println(".");
 }
+void req_mux( byte pulser){
+  byte pbuffer[4], i;
+  for (i=0;i<2;i=i+1){
+    digitalWrite(PIN_SPI2_SS, 0);
+    pbuffer[0] = SPI2.transfer((byte)CMD_REQ_MUX); // Request Busy
+    pbuffer[0] = SPI2.transfer((byte)pulser);  
+    pbuffer[0] = SPI2.transfer((byte)0);
+    pbuffer[1] = SPI2.transfer((byte)0);
+    pbuffer[2] = SPI2.transfer((byte)0);
+    pbuffer[3] = SPI2.transfer((byte)0);
+    digitalWrite(PIN_SPI2_SS, 1);
+  }
+  Serial.print(pbuffer[0]);Serial.print(":");  Serial.print(pbuffer[1]);Serial.print(":");
+  Serial.print(pbuffer[2]);Serial.print(":");  Serial.print(pbuffer[3]);Serial.println(".");
+}
 
 void functReq(CmdParser *myParser){
   String param1, param2;
@@ -123,6 +140,14 @@ void functReq(CmdParser *myParser){
       Serial.println("->Req pulse enable");
     #endif
   }
+  else if (myParser->equalCmdParam(1, "MUX")) {
+    param1=myParser->getCmdParam(2);
+    req_mux((byte) param1.toInt());
+    #if defined(DEBUG)
+      Serial.println("->Req pulse enable");
+    #endif
+  }
+
   else {
         Serial.println("ERROR:Req command not allowed!");
   } 

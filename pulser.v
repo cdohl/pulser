@@ -1,13 +1,29 @@
+/* Digital Delay Generator
+
+Pulser: the hardware that generates the pulse with delay and width 
+Output: wire, defined in pulser.pcf as ppo[N_out-1:0]
+
+Multiplexing: Each of the <N_out> outputs can be driven by any of the <N> pulsers
+
+Clk is 100MHz or 10ns time resolution
+
+Claus-Dieter Ohl (2020)
+
+*/
+
 module adder(input clk, 
 	input rst, 
 	input B1, input B2,
-	output [7:0] ppo,
+	output [11:0] ppo,
 	output [3:0] leds,
 	output SPI_MISO,
 	input SPI_MOSI, SPI_SCK, SPI_SS);
 
-	parameter N  = 8; //Number of pulsers
-	parameter N_out = 8; //Number of outputs
+	parameter N  = 12;          //Number of pulsers
+	parameter N_out = 12;       //Number of outputs
+	parameter Version = 0;
+        parameter Version_low = 5; // increases with chages in the cmd set
+
 	reg [31:0] DELAY [0:N-1];
 	reg [31:0] WIDTH [0:N-1];
 	reg [N-1:0] ENABLE = N-1'd0; 
@@ -137,6 +153,16 @@ module adder(input clk,
                                         RET[5] <= DELAY[CMD[1]][7:0];
                                 end
 
+				4'b1011: //req id
+                                begin
+                                        RET[0] <= 8'b10110000; //request is id
+                                        RET[1] <= 1'b0;        //
+                                        RET[2] <= N;           //Number of pulsers   
+                                        RET[3] <= N_out;       //Number of outputs
+                                        RET[4] <= Version;     //Version.Version_low
+                                        RET[5] <= Version_low; // 
+                                end
+
                                 4'b0100: //on-off channels
                                 begin
                                         CMD_test <= 1;
@@ -158,21 +184,24 @@ module adder(input clk,
                                 begin
                                         CMD_test <= 1;
 					if (CMD[1]<N_out) begin //check if pulser addressed is within bounds
-						temp = {CMD[2], CMD[3], CMD[4], CMD[5]};
-						mux[CMD[1]] = temp[N-1:0]; //only set the bits of the outputs that are available
+						temp <= {CMD[2], CMD[3], CMD[4], CMD[5]};
+						mux[CMD[1]] <= temp[N-1:0]; //only set the bits of the pulsers that are available
 					end
                                 end
-/* TODO!!!
+
 				4'b1101: //req mux
                                 begin
                                         RET[0] <= 8'b11010000; //request is mux
-                                        RET[1] <= CMD[1];      //of channel
-                                        RET[2] <= mux[CMD[1]][31:24];
-                                        RET[3] <= mux[CMD[1]][23:16];
-                                        RET[4] <= mux[CMD[1]][15:8];
-                                        RET[5] <= mux[CMD[1]][7:0];
+                                        RET[1] <= CMD[1];      //of pulser
+					if (CMD[1]<N_out) begin 
+						temp <= {32-N_out'b0, mux[CMD[1]]};
+		                                RET[2] <= temp[31:24];	
+			                        RET[3] <= temp[23:16];
+				                RET[4] <= temp[15:8];
+					        RET[5] <= temp[7:0];
+					end
                                 end
-*/
+
 
 				4'b1110: //req busy
                                 begin

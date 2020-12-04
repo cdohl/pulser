@@ -7,6 +7,7 @@ C C C C  X X X X      P P P P P P P P       4 Bytes = 32 bit
 0 1 0 1   set MUX                              80
 1 0 0 1   Request Pulse Width                  148
 1 0 1 0   Request pulse Delay                  160
+1 0 1 1   Request ID			       176
 1 1 0 0   Request on-off Channel	       192
 1 1 0 1   request MUX			       208
 1 1 1 1   trigger			       240

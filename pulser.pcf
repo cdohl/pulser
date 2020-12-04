@@ -13,6 +13,16 @@ set_io ppo[5] 19
 set_io ppo[6] 16
 set_io ppo[7] 15
 
+set_io ppo[8]  105   #PMOD3
+set_io ppo[9]  102
+set_io ppo[10] 99
+set_io ppo[11] 97
+
+set_io ppo[12] 143   #PMOD5
+set_io ppo[13] 114
+set_io ppo[14] 112
+set_io ppo[15] 107
+
 
 # SPI2 (shared with switches S1-S2: must be in OFF position)
 set_io SPI_SCK  39
