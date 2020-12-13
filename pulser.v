@@ -14,15 +14,15 @@ Claus-Dieter Ohl (2020)
 module adder(input clk, 
 	input rst, 
 	input B1, input B2,
-	output [11:0] ppo,
+	output [7:0] ppo,
 	output [3:0] leds,
 	output SPI_MISO,
 	input SPI_MOSI, SPI_SCK, SPI_SS);
 
-	parameter N  = 12;          //Number of pulsers
-	parameter N_out = 12;       //Number of outputs
+	parameter N  = 8;          //Number of pulsers
+	parameter N_out = 8;       //Number of outputs
 	parameter Version = 0;
-        parameter Version_low = 5; // increases with chages in the cmd set
+        parameter Version_low = 5; // increases with changes in the cmd set
 
 	reg [31:0] DELAY [0:N-1];
 	reg [31:0] WIDTH [0:N-1];
