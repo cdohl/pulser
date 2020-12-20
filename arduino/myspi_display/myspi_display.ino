@@ -37,6 +37,7 @@ char strTrig[] = "TRIG";
 #define CMD_REQ_VER    176
 #define CMD_REQ_ENABLE 192
 #define CMD_REQ_MUX    208
+#define CMD_REQ_BUSY   224
 #define CMD_TRIGGER    240
 #define SCREEN_WIDTH   128 // OLED display width, in pixels
 #define SCREEN_HEIGHT   64 // OLED display height, in pixels
@@ -56,8 +57,43 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 const int PIN_SPI2_SS = 20;
 bool configured;  // true if FPGA has been configured successfully
 
+
+struct p_set
+{
+    boolean en;
+    unsigned long del;//delay
+    unsigned long wid;//width
+    char pname[6];//label for the pulser
+};
+
+struct p_set p_sets[N_DISP];
+
+void state_display(boolean busy){
+  display.setTextSize(2);
+  display.setCursor(0,0);
+  display.fillRect(0, 0, 48, 15, BLACK);
+  if (busy)
+    display.println("BUSY");
+  else
+    display.println("WAIT");
+}
+
+void delay_display(){
+  byte i, pulser;
+
+  display.setTextSize(1);
+  display.fillRect(0, 16, 128, 48, BLACK);
+  pulser=0;
+  for (i=0;i<N_DISP;i++){
+    if ((p_sets[i].en) && (pulser<4)){
+      display.drawChar(0, 16+pulser*13,48+i, WHITE, BLACK, 1);//0-9
+      ++pulser;
+    }
+  }
+}
+
+
 void enable_display( unsigned long en){
-  
   byte i;// less than 255 channels :)
 
   display.setTextSize(1);
@@ -68,12 +104,17 @@ void enable_display( unsigned long en){
     else if (i<8)
       display.setCursor((9+(i-4)*3)*6,8);
     if (i<8){
-      if (en & (1 << i))
+      if (en & (1 << i)){
         display.print("[o]");
-      else
+        p_sets[i].en = true;
+      }
+      else{
         display.print("[ ]");
+        p_sets[i].en = false;
+      }
     }
   }
+  delay_display();
 }
 
 
@@ -99,6 +140,9 @@ void trigger(){
   SPI2.transfer((byte)CMD_TRIGGER); SPI2.transfer((byte)0); 
   spi_long(0);
   digitalWrite(PIN_SPI2_SS, 1);
+  #if defined(DISPLAY)
+    state_display(true);display.display();
+  #endif
 }
 
 void set_mux(unsigned long pulser, byte output){
@@ -132,12 +176,7 @@ void set_delay(unsigned long ldelay, byte pulser){
   digitalWrite(PIN_SPI2_SS, 1);
 }
 
-void set_trigger(){
-  digitalWrite(PIN_SPI2_SS, 0);
-  SPI2.transfer((byte)CMD_TRIGGER); SPI2.transfer((byte)0); 
-  spi_long((unsigned long) 0);
-  digitalWrite(PIN_SPI2_SS, 1);
-}
+
 void req_enable(){
   byte pbuffer[4], i;
   for (i=0;i<2;i=i+1){
@@ -157,7 +196,7 @@ void req_mux( byte pulser){
   byte pbuffer[4], i;
   for (i=0;i<2;i=i+1){
     digitalWrite(PIN_SPI2_SS, 0);
-    pbuffer[0] = SPI2.transfer((byte)CMD_REQ_MUX); // Request Busy
+    pbuffer[0] = SPI2.transfer((byte)CMD_REQ_MUX); // Request mux
     pbuffer[0] = SPI2.transfer((byte)pulser);  
     pbuffer[0] = SPI2.transfer((byte)0);
     pbuffer[1] = SPI2.transfer((byte)0);
@@ -167,6 +206,25 @@ void req_mux( byte pulser){
   }
   Serial.print(pbuffer[0]);Serial.print(":");  Serial.print(pbuffer[1]);Serial.print(":");
   Serial.print(pbuffer[2]);Serial.print(":");  Serial.print(pbuffer[3]);Serial.println(".");
+}
+
+boolean req_busy(){
+    byte pbuffer[4], i;
+    for (i=0;i<2;i=i+1){
+      digitalWrite(PIN_SPI2_SS, 0);
+      pbuffer[0] = SPI2.transfer((byte)CMD_REQ_BUSY); // Request Busy
+      pbuffer[0] = SPI2.transfer((byte)0);  
+      pbuffer[0] = SPI2.transfer((byte)0);
+      pbuffer[1] = SPI2.transfer((byte)0);
+      pbuffer[2] = SPI2.transfer((byte)0);
+      pbuffer[3] = SPI2.transfer((byte)0);
+      digitalWrite(PIN_SPI2_SS, 1);
+  }
+  #if defined(DEBUG)
+     Serial.println("->Req Busy");
+     Serial.println(pbuffer[0]);     
+  #endif
+  return(pbuffer[0]==1);
 }
 
 void req_ver(){
@@ -264,6 +322,7 @@ String param1, param2;
 }
 
 
+unsigned long myTime;
 
 void setup() {
   byte i;
@@ -296,11 +355,16 @@ void setup() {
   #endif
   
   set_enable(0);
-  for (i=0;i<12;i=i+1){
-    set_width(1, i);
+  for (i=0;i<N_DISP;i=i+1){
+    set_width(1000, i);
     set_delay(0, i);
+    p_sets[i].en=false;
+    p_sets[i].wid=1000;
+    p_sets[i].del=0;
   }
+  myTime=millis();
 }
+
 
 void loop() {
   static int toggle = 0;
@@ -314,9 +378,14 @@ void loop() {
     return;
   }
   
-  cmdCallback.loopCmdProcessing(&myParser, &myBuffer, &Serial);
+  cmdCallback.updateCmdProcessing(&myParser, &myBuffer, &Serial);
  
   //SPI2.endTransaction(); //This is not called!
-  delay(100);
-  
+  //Check every now an then if busy
+  if ((millis()-myTime)>100){
+    state_display(req_busy());display.display();
+    myTime=millis();
+  }
+
+  //delay(100);
 }
