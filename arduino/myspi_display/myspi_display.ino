@@ -12,6 +12,7 @@
 #include <CmdBuffer.hpp>
 #include <CmdCallback.hpp>
 #include <CmdParser.hpp>
+#include <stdio.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -27,18 +28,20 @@ char strSet[] = "SET";
 char strReq[] = "REQ";
 char strTrig[] = "TRIG";
 
-#define CMD_SET_WIDTH  16
-#define CMD_SET_DELAY  32
-#define CMD_SET_ENABLE 64
-#define CMD_SET_MUX    80
+#define CMD_SET_WIDTH   16
+#define CMD_SET_DELAY   32
+#define CMD_SET_ENABLE  64
+#define CMD_SET_MUX     80
 #define CMD_REQ_WIDTH  148
 #define CMD_REQ_DELAY  160
 #define CMD_REQ_VER    176
 #define CMD_REQ_ENABLE 192
 #define CMD_REQ_MUX    208
 #define CMD_TRIGGER    240
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+#define SCREEN_WIDTH   128 // OLED display width, in pixels
+#define SCREEN_HEIGHT   64 // OLED display height, in pixels
+#define N_DISP           8 // Number of channels to take care on the display 
+#define DISPLAY
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 //#define DEBUG
@@ -52,7 +55,28 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 //};
 const int PIN_SPI2_SS = 20;
 bool configured;  // true if FPGA has been configured successfully
-int p_enable = 0; //enable bits
+
+void enable_display( unsigned long en){
+  
+  byte i;// less than 255 channels :)
+
+  display.setTextSize(1);
+  display.fillRect(48, 0, 80, 15, BLACK);
+  for (i=0;i<N_DISP;i++){
+    if (i<4)
+      display.setCursor((9+i*3)*6,0);
+    else if (i<8)
+      display.setCursor((9+(i-4)*3)*6,8);
+    if (i<8){
+      if (en & (1 << i))
+        display.print("[o]");
+      else
+        display.print("[ ]");
+    }
+  }
+}
+
+
 
 void spi_long(unsigned long data){
   byte pbuffer[4];
@@ -84,11 +108,14 @@ void set_mux(unsigned long pulser, byte output){
   digitalWrite(PIN_SPI2_SS, 1);
 }
 
-void set_enable(unsigned long pulser){
+void set_enable(unsigned long npulser){
   digitalWrite(PIN_SPI2_SS, 0);
   SPI2.transfer((byte)CMD_SET_ENABLE); SPI2.transfer((byte)0); 
-  spi_long(pulser);
+  spi_long(npulser);
   digitalWrite(PIN_SPI2_SS, 1);
+  #if defined(DISPLAY)
+    enable_display(npulser);display.display();
+  #endif  
 }
 
 void set_width(unsigned long lwidth, byte pulser){
@@ -222,7 +249,6 @@ String param1, param2;
         #if #defined(DEBUG)
           Serial.println("->Set pulse enable");
         #endif
-        p_enable=param1.toInt();
     }
     else if (myParser->equalCmdParam(1, "MUX")) {
         param1=myParser->getCmdParam(2);
@@ -237,17 +263,6 @@ String param1, param2;
     }
 }
 
-void info_screen(){
-  byte i;
-  display.setCursor(0,0);
-  display.println("        Delay");  
-  for (i=0;i<6;i++){
-    display.setCursor(0, 16+i*10);
-    display.println("X:ABCDE 10.123456789");
-  }
-  // Display static text
-  display.display(); 
-}
 
 
 void setup() {
@@ -269,21 +284,22 @@ void setup() {
   //configured = myStorm.FPGAConfigure(bitstream, sizeof bitstream);
   
   SPI2.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE1));
+  #if defined(DISPLAY)
+    if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
+      Serial.println(F("SSD1306 allocation failed"));
+      for(;;);
+    }
+    delay(2000);
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+  #endif
   
   set_enable(0);
   for (i=0;i<12;i=i+1){
     set_width(1, i);
     set_delay(0, i);
   }
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
-    Serial.println(F("SSD1306 allocation failed"));
-    for(;;);
-  }
-  delay(2000);
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
-  info_screen();  
 }
 
 void loop() {

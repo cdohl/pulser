@@ -1,7 +1,7 @@
+#include <stdio.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <Fonts/FreeMono9pt7b.h>
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
@@ -15,6 +15,7 @@ int stepi=0;
 void enable_display(int en) {
   boolean isBitSet;
   byte i;
+  display.setTextSize(1);
   for (i=0;i<N;i++){
     if (i<4)
       display.setCursor((9+i*3)*6,0);
@@ -29,22 +30,58 @@ void enable_display(int en) {
   }
 }
 
+void state_display(boolean busy){
+  display.setTextSize(2);
+  display.setCursor(0,0);
+  if (busy)
+    display.println("BUSY");
+  else
+    display.println("WAIT");
+}
+
+void delay_display(byte line, byte pulser, char* mn, unsigned int md_s, unsigned long md){
+  char pname[6];
+  char pdelay[14];
+  unsigned int ns,us,ms;
+  
+  
+  if (line<4){
+    if (pulser<10)
+      display.drawChar(0, 16+line*13,48+pulser, WHITE, BLACK, 1);//0-9
+    else
+      display.drawChar(0, 16+line*13,55+pulser, WHITE, BLACK, 1);//A-Z
+    sprintf(pname, "%5s", mn);
+    display.setCursor(10, 16+line*13);
+    display.println(pname);
+    
+    ns=md%1000;
+    md=(int)((md-ns)/1000);
+    us=md%1000;
+    md=(int)((md-us)/1000);
+    ms=md%1000;
+    sprintf(pdelay, "%3d.%03d%03d%03d",md_s,ms,us,ns);
+    display.setCursor(46, 16+line*13);
+    display.println(pdelay);
+ 
+  }
+    
+}
+
 void info_display() {
   int i;
   display.clearDisplay();
-  //display.setFont(&FreeMono9pt7b);
   display.setTextSize(1);
   display.setTextColor(WHITE);
-  //display.println("         [0][0][0][0]         [0][0][0][0]");
-  enable_display(stepi);  
-  for (i=0;i<5;i++){
+  
+  enable_display(stepi);
+  for (i=0;i<4;i++)  
+    delay_display(i,i,"ABCDE",(int) 10, (unsigned long) 763212840);
+  state_display(true);
+  
+/*  for (i=0;i<5;i++){
     display.setCursor(0, 16+i*13);
     display.println("X:ABCDE 10.123456789");
-  }
-  display.setTextSize(2);
-  display.setCursor(0,0);
-  display.println("BUSY");
-  
+  }*/
   // Display static text
   display.display();
 }
