@@ -80,13 +80,27 @@ void state_display(boolean busy){
 
 void delay_display(){
   byte i, pulser;
-
+  unsigned long md;
+  unsigned int ns,us,ms;
+  char pdelay[14];
+  
   display.setTextSize(1);
   display.fillRect(0, 16, 128, 48, BLACK);
   pulser=0;
   for (i=0;i<N_DISP;i++){
     if ((p_sets[i].en) && (pulser<4)){
       display.drawChar(0, 16+pulser*13,48+i, WHITE, BLACK, 1);//0-9
+      md=p_sets[i].del;
+      ns=md%100;
+      md=(long int)((md-ns)/100);
+      us=md%1000;
+      md=(long int)((md-us)/1000);
+      ms=md%1000;
+      md=(long int)((md-ms)/1000);
+      sprintf(pdelay, "%3d.%03d%03d%02d0",md,ms,us,ns);
+      display.setCursor(46, 16+pulser*13);
+      display.println(pdelay);
+      Serial.println(p_sets[i].del);
       ++pulser;
     }
   }
@@ -174,6 +188,10 @@ void set_delay(unsigned long ldelay, byte pulser){
   SPI2.transfer((byte)CMD_SET_DELAY); SPI2.transfer(pulser); 
   spi_long(ldelay);
   digitalWrite(PIN_SPI2_SS, 1);
+  p_sets[pulser].del=ldelay;
+  #if defined(DISPLAY)
+    delay_display();display.display();
+  #endif  
 }
 
 

@@ -39,7 +39,7 @@ void state_display(boolean busy){
     display.println("WAIT");
 }
 
-void delay_display(byte line, byte pulser, char* mn, unsigned int md_s, unsigned long md){
+void delay_display(byte line, byte pulser, char* mn, unsigned long md){
   char pname[6];
   char pdelay[14];
   unsigned int ns,us,ms;
@@ -54,12 +54,13 @@ void delay_display(byte line, byte pulser, char* mn, unsigned int md_s, unsigned
     display.setCursor(10, 16+line*13);
     display.println(pname);
     
-    ns=md%1000;
-    md=(int)((md-ns)/1000);
+    ns=md%100;
+    md=(int)((md-ns)/100);
     us=md%1000;
     md=(int)((md-us)/1000);
     ms=md%1000;
-    sprintf(pdelay, "%3d.%03d%03d%03d",md_s,ms,us,ns);
+    md=(int)((md-ms)/1000);
+    sprintf(pdelay, "%3d.%03d%03d%02d0",md,ms,us,ns);
     display.setCursor(46, 16+line*13);
     display.println(pdelay);
  
@@ -75,7 +76,7 @@ void info_display() {
   
   enable_display(stepi);
   for (i=0;i<4;i++)  
-    delay_display(i,i,"ABCDE",(int) 10, (unsigned long) 763212840);
+    delay_display(i,i,"ABCDE", (unsigned long) 1263212840);
   state_display(true);
   
 /*  for (i=0;i<5;i++){
