@@ -90,6 +90,8 @@ void delay_display(){
   for (i=0;i<N_DISP;i++){
     if ((p_sets[i].en) && (pulser<4)){
       display.drawChar(0, 16+pulser*13,48+i, WHITE, BLACK, 1);//0-9
+      display.setCursor(10, 16+pulser*13);
+      display.println(p_sets[i].pname);
       md=p_sets[i].del;
       ns=md%100;
       md=(long int)((md-ns)/100);
@@ -100,7 +102,6 @@ void delay_display(){
       sprintf(pdelay, "%3d.%03d%03d%02d0",md,ms,us,ns);
       display.setCursor(46, 16+pulser*13);
       display.println(pdelay);
-      Serial.println(p_sets[i].del);
       ++pulser;
     }
   }
@@ -333,6 +334,19 @@ String param1, param2;
         #if #defined(DEBUG)
           Serial.println("->Set mux");
         #endif
+    }
+    else if (myParser->equalCmdParam(1, "LABEL")) {
+        param1=myParser->getCmdParam(2);
+        param2=myParser->getCmdParam(3);
+        if (param2.toInt()<N_DISP){
+          param1.toCharArray(p_sets[param2.toInt()].pname,6);
+        }
+        #if defined(DISPLAY)
+          delay_display();display.display();
+        #endif
+        #if defined(DEBUG)
+          Serial.println("->Set mux");
+        #endif
     }// Command Unknwon
     else {
         Serial.println("ERROR: SET command not allowed!");
@@ -379,6 +393,7 @@ void setup() {
     p_sets[i].en=false;
     p_sets[i].wid=1000;
     p_sets[i].del=0;
+    strncpy(p_sets[i].pname,"     ",5);
   }
   myTime=millis();
 }
