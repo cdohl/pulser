@@ -1,0 +1,36 @@
+{
+    "parameterSets": {
+        "pulser": {
+            "BPanel": "1",
+            "BShell": "1",
+            "Couleur1": "Orange",
+            "Couleur2": "OrangeRed",
+            "FPanel": "1",
+            "Filet": "2",
+            "FootDia": "8",
+            "FootHeight": "10",
+            "FootHole": "3",
+            "Height": "90",
+            "Length": "110",
+            "PCBFeet": "1",
+            "PCBLength": "70",
+            "PCBPosX": "7",
+            "PCBPosY": "6",
+            "PCBWidth": "50",
+            "Police": "Arial Black",
+            "Resolution": "50",
+            "TShell": "0",
+            "Text": "1",
+            "Thick": "2",
+            "TxtSize": "3",
+            "Vent": "1",
+            "Vent_width": "1.5",
+            "Width": "100",
+            "m": "0.9",
+            "txt": "HeartyGFX"
+        }
+    },
+    "fileFormatVersion": "1",
+    "parameterSets": "",
+    "parameterSets": ""
+}
