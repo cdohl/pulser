@@ -31,6 +31,10 @@ bitstream: chip.bin
 iceboot:
 	sudo dfu-util -d 0483:df11 -s 0x08000000 -D ../../../iceboot.raw --alt 0
 
+icetime:
+	icetime -P tq144:4k -d hx8k chip.txt
+
+
 .PHONY: clean
 clean:
 	$(RM) -f chip.blif chip.txt chip.ex chip.bin

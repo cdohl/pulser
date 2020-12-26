@@ -5,28 +5,28 @@ module pulse_counter (input clk,
 	output running,
 	output pulse_out);
 
-        
         parameter IDLE = 2'b00, TRIGGERED = 2'b01, OUTPUT = 2'b10;
+
         reg [31:0] count = 0;
         reg [1:0] state = IDLE;
-        reg p_out = 0;
-        reg r_out = 0;
-
-        assign pulse_out = p_out; 
-        assign running = r_out; 
+        reg running;
+        reg pulse_out;
 
         always @(posedge clk)
         begin
-                count <= count +1;
                 case(state)
                         IDLE:
                         begin
-                                if (trigger_in)
+				if (trigger_in)
                                 begin
                                         state <= TRIGGERED;
                                         count <= 0;
-					r_out <= 1;
-                                end
+					running <= 1;
+                                end else
+				begin
+					count <= count + 1;
+					running <= 0;
+				end
                         end
                         TRIGGERED:
                         begin
@@ -34,21 +34,24 @@ module pulse_counter (input clk,
                                 begin
                                         state <= OUTPUT;
                                         count <= 0;
-                                        p_out <= 1;
-                                end
+                                        pulse_out <= 1;
+                                end else
+					count <= count + 1;
                         end
                         OUTPUT:
                         begin
                                 if (count == width)
                                 begin
                                         state <= IDLE;
-                                        p_out <= 0;
-                                        r_out <= 0;
-                                end
+                                        pulse_out <= 0;
+                                        running <= 0;
+					count <= 0;
+                                end else
+					count <= count + 1;
+				
                         end
                 endcase
         end
-
 
 endmodule
 

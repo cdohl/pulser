@@ -44,3 +44,5 @@ set_io rst 128 # Connected to CH340 RTS and also P1 (uart Pmod above)
 
 set_io B1 63 # Push Button 1
 set_io B2 64 # Push Button 2
+
+set_io -pullup no TRIG_IN 143 # PMOD7 trigger input
