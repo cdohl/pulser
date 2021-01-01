@@ -3,25 +3,25 @@ set_io leds[1] 67
 set_io leds[2] 68
 set_io leds[3] 70 
 
-set_io ppo[0] 34   #PMOD11
-set_io ppo[1] 33
-set_io ppo[2] 22
-set_io ppo[3] 21
+set_io ppo[0] 97   #PMOD3
+set_io ppo[1] 99
+set_io ppo[2] 102
+set_io ppo[3] 105
 
-set_io ppo[4] 20   #PMOD9
-set_io ppo[5] 19
-set_io ppo[6] 16
-set_io ppo[7] 15
+set_io ppo[4] 85   #PMOD1
+set_io ppo[5] 88
+set_io ppo[6] 91
+set_io ppo[7] 94
 
-set_io ppo[8]  105   #PMOD3
-set_io ppo[9]  102
-set_io ppo[10] 99
-set_io ppo[11] 97
+#set_io ppo[8]  105   #PMOD3
+#set_io ppo[9]  102
+#set_io ppo[10] 99
+#set_io ppo[11] 97
 
-set_io ppo[12] 143   #PMOD5
-set_io ppo[13] 114
-set_io ppo[14] 112
-set_io ppo[15] 107
+#set_io ppo[12] 143   #PMOD5
+#set_io ppo[13] 114
+#set_io ppo[14] 112
+#set_io ppo[15] 107
 
 
 # SPI2 (shared with switches S1-S2: must be in OFF position)
@@ -42,7 +42,7 @@ set_io clk 129
 # Internal global reset
 set_io rst 128 # Connected to CH340 RTS and also P1 (uart Pmod above)
 
-set_io B1 63 # Push Button 1
-set_io B2 64 # Push Button 2
+set_io B1 114 # Push Button 1
+set_io B2 63 # Push Button 2
 
-set_io -pullup no TRIG_IN 143 # PMOD7 trigger input
+set_io -pullup no TRIG_IN 107 # PMOD5 trigger input
